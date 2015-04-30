@@ -62,6 +62,7 @@ class Downloader
 
     def gen_frame_map (filename, av)
     	frames_cmd = "ffprobe -print_format json -show_frames -select_streams #{av} #{filename}"
+        puts "Generating frame map"
     	probe_response = nil
     	Open3.popen3(frames_cmd) {|i,o,e,t|
       		probe_response = o.read.chomp
@@ -283,7 +284,17 @@ class Downloader
         return "#{File.basename(video_file)}.mp4"
     end
 
-    def request_worker_encode(worker, start, time, rate, width, height)
+    def request_worker_encode(worker, start, duration, rate, width, height)
+        worker_url = "http://localhost:9495/encode"
+        request = {
+            "jobid"=>"234234234",
+            "source"=>"http://172.31.24.156:9494/file/bbb_sunflower_1080p_30fps_stereo_abl.mp4_mezz.mov_joined.ts",
+            "start"=>"#{start}",
+            "duration"=>"#{duration}",
+            "rate"=>"#{rate}",
+            "width"=>"#{width}",
+            "height"=>"#{height}"
+        }
 
     end
 
@@ -298,25 +309,30 @@ class Downloader
         if !all_iframes(frames, 200)
             # Need to convert to a mezz file
             puts "This isn't all I-frame file so creating a mezz"
-            local_video_file = create_video_mezz local_file
-            local_audio_file = create_audio_mezz local_file
+            local_video_file = create_video_mezz(local_file)
+            local_audio_file = create_audio_mezz(local_file)
         elsif supported_concat_type(streams)
             # Convert to a concat format
             # Really need to check for supported formats here e.g. MPEG-2, H.264 etc
-            local_video_file = create_concat_video local_file
-            local_audio_file = create_audio_mezz local_file
+            local_video_file = create_concat_video(local_file)
+            local_audio_file = create_audio_mezz(local_file)
             puts "Concat OK"
         end
 
         segments = create_parts(streams["streams"][0]["duration"],10)
-        puts segments
-        segments.each do |segment|
-            files_to_join << encode_video_part(local_video_file, segment["start"], segment["finish"], 800, 640, 360)
-        end
+        return {
+                "segments"=>segments,
+                "local_video_file" => local_video_file,
+                "local_audio_file" => local_audio_file
+            }
+        #segments.each do |segment|
+        #    files_to_join << encode_video_part(local_video_file, segment["start"], segment["finish"], 800, 640, 360)
+        #end
 
-        merged_video = gen_merged_video(files_to_join, local_video_file)
-        final_file = merge_audio(merged_video, local_audio_file)
-        puts "Final file ready #{final_file}"
+        #merged_video = gen_merged_video(files_to_join, local_video_file)
+        #final_file = merge_audio(merged_video, local_audio_file)
+        #puts "Final file ready #{final_file}"
+        #return "Completed #{final_file}"
     end
 end
 

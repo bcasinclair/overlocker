@@ -14,6 +14,9 @@ class Encoder
         puts "Creating video part file"
         probe_response = nil
         Open3.popen3(frames_cmd) {|i,o,e,t|
+        	e.each_line do |line|
+  				puts(line)
+			end
             probe_response = e.read.chomp
         }
         puts probe_response
