@@ -63,7 +63,7 @@ end
 post '/encode' do
 	request.body.rewind
 	payload = JSON.parse(request.body.read)
-	encode_background(payload, "http://localhost:9494/complete")
+	encode_background(payload, "http://192.168.88.240:9494/complete")
 	return "OK"
 end
 
