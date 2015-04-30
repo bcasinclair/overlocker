@@ -21,9 +21,9 @@ get '/file/:file' do
   send_file File.join(File.join("source/",params[:file]))
 end
 
-get '/process' do
-	d = Downloader.new("source/bipbop.mp4")
-	d.process_file("source/bipbop.mp4")
+get '/process/:file' do
+	d = Downloader.new(File.join(File.join("source/",params[:file])))
+	d.process_file(File.join(File.join("source/",params[:file])))
 end
 
 get '/register/:address' do
