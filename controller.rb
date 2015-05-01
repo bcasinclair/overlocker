@@ -28,17 +28,26 @@ get '/hi' do
 end 
 
 get '/file/:file' do
-  send_file File.join(File.join("source/",params[:file]))
+	start = params['start']
+	send_file File.join(File.join("source/",params[:file]))
 end
 
 get '/file/source/:file' do
+  puts "#{ request.env }"
+  puts "#{response.headers}"
   send_file File.join(File.join("source/",params[:file]))
+end
+
+def load_workers()
+	f = File.open("workers.json")
+	@workers = JSON.parse(f.read)["workers"]
 end
 
 get '/process/:file' do
 	# Test assumes file exists in the source dir
 	# Also really should submit a job into a q but this is a hack poc
-	workers = ["http://192.168.88.249:9495/encode", "http://192.168.88.240:9495/encode"]
+	#workers = ["http://192.168.88.249:9495/encode", "http://192.168.88.240:9495/encode", "http://192.168.88.250:9495/encode"]
+	load_workers()
 	file_to_process = File.join(File.join("source/",params[:file]))
 	jobid = SecureRandom.uuid
 	puts "Created job #{jobid}"
@@ -56,8 +65,8 @@ get '/process/:file' do
 				"width"=>"640",
 				"height"=>"360"
 			}
-			worker = workers.shift
-			workers.push(worker)
+			worker = @workers.shift
+			@workers.push(worker)
 			resp = http_post(worker,encode_job)
 			puts "Response #{resp} from #{worker}"
         #    files_to_join << encode_video_part(local_video_file, segment["start"], segment["finish"], 800, 640, 360)

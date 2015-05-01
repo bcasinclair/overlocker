@@ -17,6 +17,9 @@ class Encoder
         	e.each_line do |line|
   				puts(line)
 			end
+			o.each_line do |line|
+  				puts(line)
+			end
             probe_response = e.read.chomp
         }
         puts probe_response

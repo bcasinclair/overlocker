@@ -319,7 +319,7 @@ class Downloader
             puts "Concat OK"
         end
 
-        segments = create_parts(streams["streams"][0]["duration"],10)
+        segments = create_parts(streams["streams"][0]["duration"],100)
         return {
                 "segments"=>segments,
                 "local_video_file" => local_video_file,
