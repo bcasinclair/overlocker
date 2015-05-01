@@ -3,16 +3,23 @@
 # Gets the notifications back and does the stitching
 
 require 'sinatra'
-#require 'json'
+require 'json'
 #require 'base64'
-##require 'httpclient'
+require 'socket'
 require 'openssl'
 require 'securerandom'
 
+@port = 9494
+
 set :bind, '0.0.0.0'
-set :port, 9494
+set :port, @port
 
 require_relative 'downloader'
+
+def my_first_private_ipv4
+  Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
+end
+@myip = my_first_private_ipv4.ip_address
 
 # Todo move this into a util clase
 def http_post(url, data)
@@ -58,7 +65,7 @@ get '/process/:file' do
 		resp["segments"].each do |segment|
 			encode_job = {
 				"jobid"=>"#{jobid}",
-				"source"=>"http://192.168.88.249:9494/file/#{video_file}",
+				"source"=>"http://#{my_first_private_ipv4.ip_address}:9494/file/#{video_file}",
 				"start"=> segment["start"],
 				"duration"=> segment["finish"],
 				"rate"=>"800",

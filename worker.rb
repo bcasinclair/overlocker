@@ -30,6 +30,11 @@ get '/file/:file' do
   send_file File.join(File.join("source/",params[:file]))
 end
 
+def load_controller()
+	f = File.open("controller.json")
+	@wcontroller = JSON.parse(f.read)["controller"]
+end
+
 def http_get(url)
 	uri = URI(url)
 	#First let's get some details on the file size
@@ -61,9 +66,10 @@ def encode_background(payload, callback)
 end
 
 post '/encode' do
+	@controller = load_controller
 	request.body.rewind
 	payload = JSON.parse(request.body.read)
-	encode_background(payload, "http://192.168.88.249:9494/complete")
+	encode_background(payload, "#{@controller}/complete")
 	return "OK"
 end
 
