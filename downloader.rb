@@ -156,7 +156,7 @@ class Downloader
         # This should essentially just convert the original file to a mezz format with all I frames
         # Strips audio and data tracks, data is never re-added, q = 4 seems to be a reasonable compromise on q =0
         # ffmpeg also won't process the file over http without faststart
-        frames_cmd = "ffmpeg -i #{filename} -c:v mjpeg -pix_fmt yuvj422p -an -dn -q 4 +movflags faststart -y #{filename}_mezz.mov"
+        frames_cmd = "ffmpeg -i #{filename} -c:v mjpeg -pix_fmt yuvj422p -an -dn -q 4 -movflags faststart -y #{filename}_mezz.mov"
         puts "Creating video mezz file"
         puts frames_cmd
         probe_response = nil
