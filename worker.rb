@@ -32,7 +32,7 @@ end
 
 def load_controller()
 	f = File.open("controller.json")
-	@wcontroller = JSON.parse(f.read)["controller"]
+	@controller = JSON.parse(f.read)["controller"]
 end
 
 def http_get(url)
