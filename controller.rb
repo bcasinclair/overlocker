@@ -62,6 +62,16 @@ get '/process/:file' do
 		d = Downloader.new(file_to_process)
 		resp = d.process_file(File.join(File.join("shared/",params[:file])))
 		video_file = resp["local_video_file"]
+		job = {
+			"jobid":jobid,
+			"local_video_file" => resp["local_video_file"],
+			"local_audio_file" => resp["local_audio_file"],
+			"segments":resp["segments"]
+		}
+		File.open("jobs/#{jobid}",'w') { |file| 
+			file.write(job.to_json) 
+			file.close }
+
 		resp["segments"].each do |segment|
 			encode_job = {
 				"jobid"=>"#{jobid}",
@@ -86,9 +96,38 @@ get '/process/:file' do
 	return resp.to_s
 end
 
+def all_renditions_complete(job)
+	job["segments"].each do |segment|
+		if !segment["complete"] then
+			return false
+		end
+	end
+	return true
+end
+
 post '/complete' do
 	request.body.rewind
 	payload = JSON.parse(request.body.read)
+	load_workers()
+	f = File.open("jobs/#{payload['jobid']}", 'r')
+	job = JSON.parse(f.read)
+	job["segments"].each  do |k,v| 
+		if k["start"] == payload["start"] then 
+			k["complete"]=true 
+			k["file"]=payload["file"]
+		end
+	end
+	puts job
+	f.close
+	# There is no doubt a better way to do this in Ruby...
+	f = File.open("jobs/#{payload['jobid']}", 'w')
+	f.write(job.to_json)
+	f.close
+	if all_renditions_complete(job) then
+		puts "All renditions complete, time to mux and join"
+		d = Downloader.new(nil)
+		d.merge_and_join(job)
+	end
 	puts "Post complete #{payload.to_s}"
 	return "OK"
 end

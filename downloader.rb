@@ -267,7 +267,10 @@ class Downloader
     end
 
     def gen_merged_video(files_to_join, local_video_file)
-        cmd = "cat #{files_to_join.join(" ")} > #{local_video_file}_joined.ts"
+        files = []
+        files_to_join.each do |file| files.push(file["file"]) end
+        cmd = "cat #{files.join(" ")} > #{local_video_file}_joined.ts"
+        puts cmd
         Open3.popen3(cmd) {|i,o,e,t|
             probe_response = e.read.chomp
         }
@@ -284,6 +287,15 @@ class Downloader
             puts probe_response
         }
         return "#{File.basename(video_file)}.mp4"
+    end
+
+    def merge_and_join(job)
+        puts job["segments"]
+        files_to_join = job["segments"].sort{|a,b| a['start']<=>b['start']}
+        merged_video = gen_merged_video(files_to_join, job["jobid"])
+        final_file = merge_audio(merged_video, job["local_audio_file"])
+        puts "Final file ready #{final_file}"
+        return "Completed #{final_file}"
     end
 
     def process_file(local_file)
@@ -307,20 +319,12 @@ class Downloader
             puts "Concat OK"
         end
 
-        segments = create_parts(streams["streams"][0]["duration"],100)
+        segments = create_parts(streams["streams"][0]["duration"],10)
         return {
                 "segments"=>segments,
                 "local_video_file" => local_video_file,
                 "local_audio_file" => local_audio_file
             }
-        #segments.each do |segment|
-        #    files_to_join << encode_video_part(local_video_file, segment["start"], segment["finish"], 800, 640, 360)
-        #end
-
-        #merged_video = gen_merged_video(files_to_join, local_video_file)
-        #final_file = merge_audio(merged_video, local_audio_file)
-        #puts "Final file ready #{final_file}"
-        #return "Completed #{final_file}"
     end
 end
 

@@ -57,7 +57,9 @@ def encode_background(payload, callback)
 		file = e.encode_video_part(payload["source"], payload["start"], payload["duration"], payload["rate"], payload["width"], payload["height"])
 		status = {
 			"file" => file,
-			"worker" => my_first_private_ipv4.ip_address
+			"worker" => my_first_private_ipv4.ip_address,
+			"jobid" => payload["jobid"],
+			"start" => payload["start"]
 		}
 		puts "Status #{status.to_json}"
 		http_post("#{callback}", status)
