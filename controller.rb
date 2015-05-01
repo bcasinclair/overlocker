@@ -60,12 +60,13 @@ get '/process/:file' do
 	puts "Created job #{jobid}"
 	if File.file?(file_to_process) then
 		d = Downloader.new(file_to_process)
-		resp = d.process_file(File.join(File.join("source/",params[:file])))
+		resp = d.process_file(File.join(File.join("shared/",params[:file])))
 		video_file = resp["local_video_file"]
 		resp["segments"].each do |segment|
 			encode_job = {
 				"jobid"=>"#{jobid}",
-				"source"=>"http://#{my_first_private_ipv4.ip_address}:9494/file/#{video_file}",
+				#{}"source"=>"http://#{my_first_private_ipv4.ip_address}:9494/file/#{video_file}",
+				"source" => "#{video_file}",
 				"start"=> segment["start"],
 				"duration"=> segment["finish"],
 				"rate"=>"800",

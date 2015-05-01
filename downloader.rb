@@ -286,20 +286,6 @@ class Downloader
         return "#{File.basename(video_file)}.mp4"
     end
 
-    def request_worker_encode(worker, start, duration, rate, width, height)
-        worker_url = "http://localhost:9495/encode"
-        request = {
-            "jobid"=>"234234234",
-            "source"=>"http://172.31.24.156:9494/file/bbb_sunflower_1080p_30fps_stereo_abl.mp4_mezz.mov_joined.ts",
-            "start"=>"#{start}",
-            "duration"=>"#{duration}",
-            "rate"=>"#{rate}",
-            "width"=>"#{width}",
-            "height"=>"#{height}"
-        }
-
-    end
-
     def process_file(local_file)
         streams = probe_streams(local_file)
         files_to_join = Array.new
