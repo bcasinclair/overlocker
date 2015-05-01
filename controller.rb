@@ -144,10 +144,14 @@ post '/register' do
 	payload = JSON.parse(request.body.read)
 	puts payload
 	worker = payload["worker"]
-	f = File.open("workers.json")
-	@workers = JSON.parse(f.read)
-	f.close
-	puts @workers
+	begin
+		f = File.open("workers.json")
+		@workers = JSON.parse(f.read)
+		f.close
+		puts @workers
+	rescue
+		@workers = {}
+	end
 	
 	@workers["workers"].push(worker) unless @workers["workers"].include?(worker)
 	f = File.open("workers.json",'w')
