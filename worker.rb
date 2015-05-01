@@ -47,7 +47,7 @@ def http_post(url, data)
 end
 
 def encode_background(payload, callback)
-	#t1 = Thread.new {
+	t1 = Thread.new {
         e = Encoder.new()
 		file = e.encode_video_part(payload["source"], payload["start"], payload["duration"], payload["rate"], payload["width"], payload["height"])
 		status = {
@@ -56,7 +56,7 @@ def encode_background(payload, callback)
 		}
 		puts "Status #{status.to_json}"
 		http_post("#{callback}", status)
-    #}
+    }
     #t1.join
 end
 

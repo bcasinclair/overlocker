@@ -38,7 +38,7 @@ end
 get '/process/:file' do
 	# Test assumes file exists in the source dir
 	# Also really should submit a job into a q but this is a hack poc
-	workers = ["http://192.168.88.249:9495/encode", "http://192.168.88.250:9495/encode", "http://192.168.88.240:9495/encode"]
+	workers = ["http://192.168.88.249:9495/encode", "http://192.168.88.240:9495/encode"]
 	file_to_process = File.join(File.join("source/",params[:file]))
 	jobid = SecureRandom.uuid
 	puts "Created job #{jobid}"
@@ -56,7 +56,10 @@ get '/process/:file' do
 				"width"=>"640",
 				"height"=>"360"
 			}
-			resp = http_post("http://localhost:9495/encode",encode_job)
+			worker = workers.shift
+			workers.push(worker)
+			resp = http_post(worker,encode_job)
+			puts "Response #{resp} from #{worker}"
         #    files_to_join << encode_video_part(local_video_file, segment["start"], segment["finish"], 800, 640, 360)
         	puts segment
         end
