@@ -85,6 +85,8 @@ get '/process/:file' do
 			}
 			worker = @workers.shift
 			@workers.push(worker)
+			# No queueing here! Dish all the jobs out
+			puts "Sending job to #{worker}"
 			resp = http_post(worker,encode_job)
 			puts "Response #{resp} from #{worker}"
         #    files_to_join << encode_video_part(local_video_file, segment["start"], segment["finish"], 800, 640, 360)
@@ -138,5 +140,18 @@ get '/register/:address' do
 end
 
 post '/register' do
-
+	request.body.rewind
+	payload = JSON.parse(request.body.read)
+	puts payload
+	worker = payload["worker"]
+	f = File.open("workers.json")
+	@workers = JSON.parse(f.read)
+	f.close
+	puts @workers
+	
+	@workers["workers"].push(worker) unless @workers["workers"].include?(worker)
+	f = File.open("workers.json",'w')
+	f.write(@workers.to_json)
+	f.close
+	return @workers.to_json
 end

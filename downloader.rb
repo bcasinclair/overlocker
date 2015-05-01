@@ -269,7 +269,7 @@ class Downloader
     def gen_merged_video(files_to_join, local_video_file)
         files = []
         files_to_join.each do |file| files.push(file["file"]) end
-        cmd = "cat #{files.join(" ")} > #{local_video_file}_joined.ts"
+        cmd = "cat #{files.join(" ")} > shared/#{local_video_file}_joined.ts"
         puts cmd
         Open3.popen3(cmd) {|i,o,e,t|
             probe_response = e.read.chomp
@@ -280,7 +280,7 @@ class Downloader
     def merge_audio(video_file, audio_file)
         # audio processing is a hack!
         file_no_ext = File.basename(video_file,File.extname(video_file))
-        cmd = "nice ffmpeg -y -i #{video_file} -i #{audio_file} -c:v copy -c:a libfdk_aac #{file_no_ext}_merged.mp4"
+        cmd = "nice ffmpeg -y -i #{video_file} -i #{audio_file} -c:v copy -c:a libfdk_aac shared/#{file_no_ext}_merged.mp4"
         puts cmd
         Open3.popen3(cmd) {|i,o,e,t|
             probe_response = e.read.chomp

@@ -33,6 +33,7 @@ end
 def load_controller()
 	f = File.open("controller.json")
 	@controller = JSON.parse(f.read)["controller"]
+	f.close
 end
 
 def http_get(url)
@@ -67,6 +68,12 @@ def encode_background(payload, callback)
     #t1.join
 end
 
+def initialize_me()
+	load_controller
+	me = {"worker" => "http://#{my_first_private_ipv4.ip_address}:9495/"}
+	http_post("#{@controller}/register", me)
+end
+
 post '/encode' do
 	@controller = load_controller
 	request.body.rewind
@@ -90,3 +97,5 @@ get '/encodetest' do
 	end
 	response.content_length
 end
+
+initialize_me
