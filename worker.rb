@@ -74,6 +74,7 @@ def initialize_me()
 	puts "My controller is #{@controller}"
 	me = {"worker" => "http://#{my_first_private_ipv4.ip_address}:9495/encode"}
 	http_post("#{@controller}/register", me)
+	http_post("#{@controller}/register", me)
 end
 
 post '/encode' do
