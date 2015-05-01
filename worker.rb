@@ -63,6 +63,7 @@ def encode_background(payload, callback)
 			"start" => payload["start"]
 		}
 		puts "Status #{status.to_json}"
+		puts "Sending status to #{callback}"
 		http_post("#{callback}", status)
     }
     #t1.join
@@ -70,12 +71,13 @@ end
 
 def initialize_me()
 	load_controller
-	me = {"worker" => "http://#{my_first_private_ipv4.ip_address}:9495/"}
+	puts "My controller is #{@controller}"
+	me = {"worker" => "http://#{my_first_private_ipv4.ip_address}:9495/encode"}
 	http_post("#{@controller}/register", me)
 end
 
 post '/encode' do
-	@controller = load_controller
+	load_controller
 	request.body.rewind
 	payload = JSON.parse(request.body.read)
 	encode_background(payload, "#{@controller}/complete")
