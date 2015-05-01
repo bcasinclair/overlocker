@@ -150,7 +150,7 @@ post '/register' do
 		f.close
 		puts @workers
 	rescue
-		@workers = {}
+		@workers = {"workers"=>[]}
 	end
 	
 	@workers["workers"].push(worker) unless @workers["workers"].include?(worker)
